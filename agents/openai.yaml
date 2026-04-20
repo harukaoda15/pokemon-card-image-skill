@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pokemon Card Image Collector"
+  short_description: "Collect card-only Pokémon images (no background/UI)"
+  default_prompt: "Use $pokemon-card-image-collector to gather background-free card-only images from the web, save them locally, and report the Finder path."
