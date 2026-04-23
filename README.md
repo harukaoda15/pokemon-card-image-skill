@@ -13,6 +13,7 @@ Codex skill to collect and save Pokemon card-only images from web pages.
 - Rejects non-card assets (logos/icons/card backs/wordmarks)
 - Applies card-like portrait ratio validation
 - Outputs `sources.tsv` and `download_log.tsv`
+- Includes PSA label redaction script for `outputs/with_bg` and `outputs/no_bg`
 
 ## Install
 
@@ -33,4 +34,12 @@ bash ~/.codex/skills/pokemon-card-image-collector/scripts/download_from_tsv.sh /
 ```tsv
 slug\tpage_url
 example_card\thttps://www.cardrush-pokemon.jp/product/73305
+```
+
+## PSA Redaction
+
+Apply fixed-baseline + micro-adjusted blur to PSA label areas:
+
+```bash
+python3 /Users/uemuraharuka/CascadeProjects/PSA-card-image-skill/scripts/psa_label_redact.py --mode apply
 ```

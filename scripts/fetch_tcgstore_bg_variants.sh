@@ -74,6 +74,7 @@ while IFS= read -r line; do
   urls+=("$line")
 done < <(sed -n '3,$p' "$parsed_tsv")
 rm -f "$parsed_tsv"
+total_urls="${#urls[@]}"
 
 base="$output_root/tcgstore_${card_id}"
 with_bg_dir="$base/with_bg"
@@ -113,11 +114,13 @@ for u in "${urls[@]}"; do
   if [ "$w" -gt 0 ] && [ "$h" -gt 0 ]; then
     # closeness to square
     sq_diff=$(awk -v w="$w" -v h="$h" 'BEGIN{d=(w>h?w-h:h-w); print d}')
-    with_score=$(awk -v d="$sq_diff" -v a="$a" -v slot="$slot" -v u="$u" 'BEGIN{
+    with_score=$(awk -v d="$sq_diff" -v a="$a" -v slot="$slot" -v u="$u" -v i="$idx" -v n="$total_urls" 'BEGIN{
       s=100000-d;
       if(a=="no") s+=30000;
       if(slot==0) s+=60000; else s-=30000;
       if(u ~ /\/image_url_origin$/) s-=20000;
+      # In TCG STORE payloads, front images tend to come before back images.
+      if(i <= (n/2)) s+=50000; else s-=50000;
       print s
     }')
   fi
@@ -151,7 +154,7 @@ for u in "${urls[@]}"; do
   no_score=0
   if [ "$w" -gt 0 ] && [ "$h" -gt 0 ]; then
     # no_bg: portrait, alpha, and slot 0 (front) are strongly preferred.
-    no_score=$(awk -v w="$w" -v h="$h" -v a="$a" -v slot="$slot" -v u="$u" 'BEGIN{
+    no_score=$(awk -v w="$w" -v h="$h" -v a="$a" -v slot="$slot" -v u="$u" -v i="$idx" -v n="$total_urls" 'BEGIN{
       r=h/w;
       d=(r>1.40?r-1.40:1.40-r);
       s=100000-(d*10000);
@@ -159,6 +162,8 @@ for u in "${urls[@]}"; do
       if(a=="yes") s+=30000; else s-=30000;
       if(slot==0) s+=120000; else s-=70000;
       if(u ~ /\/image_url_origin$/) s-=20000;
+      # In TCG STORE payloads, front images tend to come before back images.
+      if(i <= (n/2)) s+=100000; else s-=100000;
       print s
     }')
   fi
